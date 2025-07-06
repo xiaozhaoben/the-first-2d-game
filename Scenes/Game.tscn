@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://d3rjgpdghycut"]
+[gd_scene load_steps=6 format=3 uid="uid://d3rjgpdghycut"]
 
 [ext_resource type="Texture2D" uid="uid://c7s4ogq0kfpj" path="res://AssetBundle/Sprites/ForestBackground.png" id="1_iukft"]
 [ext_resource type="PackedScene" uid="uid://bngilxunfdgbw" path="res://Scenes/Player.tscn" id="2_gl6un"]
-[ext_resource type="PackedScene" uid="uid://bh5gdfdxd4wu1" path="res://Scripts/Slimer.tscn" id="3_j5yw3"]
+[ext_resource type="PackedScene" uid="uid://bh5gdfdxd4wu1" path="res://Scenes/Slimer.tscn" id="3_j5yw3"]
+[ext_resource type="PackedScene" uid="uid://c5mcu8dyhrypd" path="res://Scenes/bullet.tscn" id="4_kldst"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_gl6un"]
 
@@ -25,6 +26,7 @@ metadata/_edit_lock_ = true
 
 [node name="Player" parent="." instance=ExtResource("2_gl6un")]
 position = Vector2(-204, 78)
+bullet_scene = ExtResource("4_kldst")
 
 [node name="Boundary" type="Node2D" parent="."]
 metadata/_edit_lock_ = true
@@ -56,6 +58,6 @@ rotation = -1.57079
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boundary/StaticBody2D3"]
 shape = SubResource("WorldBoundaryShape2D_gl6un")
 
-[node name="Area2D" parent="." instance=ExtResource("3_j5yw3")]
+[node name="slime" parent="." instance=ExtResource("3_j5yw3")]
 position = Vector2(202, 82)
 slime_speed = -40.0
