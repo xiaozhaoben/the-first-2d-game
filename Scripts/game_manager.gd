@@ -8,10 +8,6 @@ extends Node2D
 
 @onready var spawn_timer: Timer = $SpawnTimer
 @onready var ui_manager: Control = $UIManager
-@onready var pause_menu: Control = $UIManager/PauseMenu
-@onready var game_over_menu: Control = $UIManager/GameOverMenu
-@onready var score_label: Label = $UIManager/GameUI/ScoreLabel
-@onready var high_score_label: Label = $UIManager/GameUI/HighScoreLabel
 @onready var player: CharacterBody2D = $Player
 
 var score: int = 0
@@ -19,10 +15,25 @@ var high_score: int = 0
 var is_paused: bool = false
 var is_game_over: bool = false
 
+# UI references - will be set after nodes are ready
+var pause_menu: Control
+var game_over_menu: Control
+var score_label: Label
+var high_score_label: Label
+
 signal score_changed(new_score: int)
 signal game_over_signal
 
 func _ready() -> void:
+	# Wait for all nodes to be ready
+	await get_tree().process_frame
+	
+	# Get UI references safely
+	pause_menu = get_node_or_null("UIManager/PauseMenu")
+	game_over_menu = get_node_or_null("UIManager/GameOverMenu")
+	score_label = get_node_or_null("UIManager/GameUI/ScoreLabel")
+	high_score_label = get_node_or_null("UIManager/GameUI/HighScoreLabel")
+	
 	# Load high score
 	load_high_score()
 	
@@ -37,8 +48,10 @@ func _ready() -> void:
 	
 	# Setup UI
 	update_score_display()
-	pause_menu.hide()
-	game_over_menu.hide()
+	if pause_menu:
+		pause_menu.hide()
+	if game_over_menu:
+		game_over_menu.hide()
 	
 	# Connect player game over signal
 	if player:
@@ -84,22 +97,25 @@ func _on_player_died() -> void:
 func _on_game_over() -> void:
 	# Show game over menu after a short delay
 	await get_tree().create_timer(1.0).timeout
-	game_over_menu.show()
+	if game_over_menu:
+		game_over_menu.show()
 	get_tree().paused = true
 
 func toggle_pause() -> void:
 	is_paused = !is_paused
 	get_tree().paused = is_paused
 	
-	if is_paused:
-		pause_menu.show()
-	else:
-		pause_menu.hide()
+	if pause_menu:
+		if is_paused:
+			pause_menu.show()
+		else:
+			pause_menu.hide()
 
 func resume_game() -> void:
 	is_paused = false
 	get_tree().paused = false
-	pause_menu.hide()
+	if pause_menu:
+		pause_menu.hide()
 
 func restart_game() -> void:
 	get_tree().paused = false
