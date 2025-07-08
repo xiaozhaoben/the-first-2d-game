@@ -5,13 +5,16 @@ extends Area2D
 
 var death_effect_scene = preload("res://Scenes/slime_death_effect.tscn")
 
+signal slime_died
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta: float) -> void:
-	position += Vector2(slime_speed, 0) * delta
-	
-	# Remove slime if it goes too far left
-	if position.x < -300:
-		queue_free()
+	if not get_tree().paused:
+		position += Vector2(slime_speed, 0) * delta
+		
+		# Remove slime if it goes too far left
+		if position.x < -300:
+			queue_free()
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is CharacterBody2D:
@@ -24,6 +27,9 @@ func take_damage() -> void:
 		die()
 
 func die() -> void:
+	# Emit signal for score system
+	slime_died.emit()
+	
 	# Create death effect
 	if death_effect_scene:
 		var death_effect = death_effect_scene.instantiate()

@@ -13,7 +13,8 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta: float) -> void:
-	position += Vector2(bullet_speed, 0) * delta
+	if not get_tree().paused:
+		position += Vector2(bullet_speed, 0) * delta
 
 func _on_area_entered(area: Area2D) -> void:
 	# Check if we hit a slime enemy

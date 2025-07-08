@@ -1,10 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://d3rjgpdghycut"]
+[gd_scene load_steps=9 format=3 uid="uid://d3rjgpdghycut"]
 
 [ext_resource type="Script" uid="uid://d2n8k4m5p6q7r" path="res://Scripts/game_manager.gd" id="1_game_manager"]
 [ext_resource type="Texture2D" uid="uid://c7s4ogq0kfpj" path="res://AssetBundle/Sprites/ForestBackground.png" id="1_iukft"]
 [ext_resource type="PackedScene" uid="uid://bngilxunfdgbw" path="res://Scenes/Player.tscn" id="2_gl6un"]
 [ext_resource type="PackedScene" uid="uid://bh5gdfdxd4wu1" path="res://Scenes/Slimer.tscn" id="3_j5yw3"]
 [ext_resource type="PackedScene" uid="uid://c5mcu8dyhrypd" path="res://Scenes/bullet.tscn" id="4_kldst"]
+[ext_resource type="Script" uid="uid://b4n7k8m9p0q1r" path="res://Scripts/ui_manager.gd" id="5_ui_manager"]
+[ext_resource type="Script" uid="uid://c5n8k9m0p1q2s" path="res://Scripts/audio_manager.gd" id="6_audio_manager"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_gl6un"]
 
@@ -67,5 +69,174 @@ shape = SubResource("WorldBoundaryShape2D_gl6un")
 [node name="SpawnTimer" type="Timer" parent="."]
 wait_time = 2.0
 autostart = true
+
+[node name="UIManager" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("5_ui_manager")
+
+[node name="GameUI" type="Control" parent="UIManager"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="ScoreLabel" type="Label" parent="UIManager/GameUI"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 0.1
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 24
+text = "Score: 0"
+
+[node name="HighScoreLabel" type="Label" parent="UIManager/GameUI"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 0.1
+offset_left = -200.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(1, 1, 0.5, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+text = "High Score: 0"
+horizontal_alignment = 2
+
+[node name="PauseHint" type="Label" parent="UIManager/GameUI"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.1
+offset_left = -100.0
+offset_top = 20.0
+offset_right = 100.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.7)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 16
+text = "Press ESC to Pause"
+horizontal_alignment = 1
+
+[node name="PauseMenu" type="Control" parent="UIManager"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 0
+
+[node name="Background" type="ColorRect" parent="UIManager/PauseMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.7)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/PauseMenu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -100.0
+offset_right = 100.0
+offset_bottom = 100.0
+
+[node name="PauseLabel" type="Label" parent="UIManager/PauseMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="UIManager/PauseMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Resume"
+
+[node name="RestartButton" type="Button" parent="UIManager/PauseMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Restart"
+
+[node name="QuitButton" type="Button" parent="UIManager/PauseMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Quit"
+
+[node name="GameOverMenu" type="Control" parent="UIManager"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 0
+
+[node name="Background" type="ColorRect" parent="UIManager/GameOverMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.5, 0, 0, 0.8)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/GameOverMenu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -120.0
+offset_right = 120.0
+offset_bottom = 120.0
+
+[node name="GameOverLabel" type="Label" parent="UIManager/GameOverMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 36
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="UIManager/GameOverMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Final Score: 0"
+horizontal_alignment = 1
+
+[node name="RestartButton" type="Button" parent="UIManager/GameOverMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Restart"
+
+[node name="QuitButton" type="Button" parent="UIManager/GameOverMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Quit"
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("6_audio_manager")
+
+[node name="BGMPlayer" type="AudioStreamPlayer" parent="AudioManager"]
 
 [connection signal="timeout" from="SpawnTimer" to="." method="_spawn_slime"]
