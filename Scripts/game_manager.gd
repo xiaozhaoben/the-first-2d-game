@@ -46,12 +46,21 @@ func _ready() -> void:
 	call_deferred("setup_ui_after_ready")
 
 func setup_ui_after_ready() -> void:
-	# Get UI references
-	pause_menu = $UIManager/PauseMenu
-	game_over_menu = $UIManager/GameOverMenu
-	game_ui = $UIManager/GameUI
-	score_label = $UIManager/GameUI/ScoreLabel
-	high_score_label = $UIManager/GameUI/HighScoreLabel
+	print("Setting up UI after ready...")
+	
+	# Get UI references with error checking
+	pause_menu = ui_manager.get_node("PauseMenu")
+	game_over_menu = ui_manager.get_node("GameOverMenu")
+	game_ui = ui_manager.get_node("GameUI")
+	score_label = ui_manager.get_node("GameUI/ScoreLabel")
+	high_score_label = ui_manager.get_node("GameUI/HighScoreLabel")
+	
+	print("UI nodes found:")
+	print("- pause_menu: ", pause_menu != null)
+	print("- game_over_menu: ", game_over_menu != null)
+	print("- game_ui: ", game_ui != null)
+	print("- score_label: ", score_label != null)
+	print("- high_score_label: ", high_score_label != null)
 	
 	# Setup initial UI state
 	setup_ui()
@@ -77,34 +86,51 @@ func setup_ui() -> void:
 		print("Game over menu hidden")
 
 func setup_button_connections() -> void:
-	# Pause menu buttons
-	var resume_button = $UIManager/PauseMenu/VBoxContainer/ResumeButton
-	var pause_restart_button = $UIManager/PauseMenu/VBoxContainer/RestartButton
-	var pause_quit_button = $UIManager/PauseMenu/VBoxContainer/QuitButton
+	print("Setting up button connections...")
 	
-	if resume_button and not resume_button.pressed.is_connected(resume_game):
-		resume_button.pressed.connect(resume_game)
-		print("Resume button connected")
-	if pause_restart_button and not pause_restart_button.pressed.is_connected(restart_game):
-		pause_restart_button.pressed.connect(restart_game)
-		print("Pause restart button connected")
-	if pause_quit_button and not pause_quit_button.pressed.is_connected(quit_game):
-		pause_quit_button.pressed.connect(quit_game)
-		print("Pause quit button connected")
+	# Pause menu buttons
+	var resume_button = ui_manager.get_node("PauseMenu/VBoxContainer/ResumeButton")
+	var pause_restart_button = ui_manager.get_node("PauseMenu/VBoxContainer/RestartButton")
+	var pause_quit_button = ui_manager.get_node("PauseMenu/VBoxContainer/QuitButton")
+	
+	print("Pause menu buttons found:")
+	print("- resume_button: ", resume_button != null)
+	print("- pause_restart_button: ", pause_restart_button != null)
+	print("- pause_quit_button: ", pause_quit_button != null)
+	
+	if resume_button:
+		if not resume_button.pressed.is_connected(resume_game):
+			resume_button.pressed.connect(resume_game)
+			print("Resume button connected")
+	if pause_restart_button:
+		if not pause_restart_button.pressed.is_connected(restart_game):
+			pause_restart_button.pressed.connect(restart_game)
+			print("Pause restart button connected")
+	if pause_quit_button:
+		if not pause_quit_button.pressed.is_connected(quit_game):
+			pause_quit_button.pressed.connect(quit_game)
+			print("Pause quit button connected")
 	
 	# Game over menu buttons
-	var gameover_restart_button = $UIManager/GameOverMenu/VBoxContainer/RestartButton
-	var gameover_quit_button = $UIManager/GameOverMenu/VBoxContainer/QuitButton
+	var gameover_restart_button = ui_manager.get_node("GameOverMenu/VBoxContainer/RestartButton")
+	var gameover_quit_button = ui_manager.get_node("GameOverMenu/VBoxContainer/QuitButton")
 	
-	if gameover_restart_button and not gameover_restart_button.pressed.is_connected(restart_game):
-		gameover_restart_button.pressed.connect(restart_game)
-		print("Game over restart button connected")
-	if gameover_quit_button and not gameover_quit_button.pressed.is_connected(quit_game):
-		gameover_quit_button.pressed.connect(quit_game)
-		print("Game over quit button connected")
+	print("Game over menu buttons found:")
+	print("- gameover_restart_button: ", gameover_restart_button != null)
+	print("- gameover_quit_button: ", gameover_quit_button != null)
+	
+	if gameover_restart_button:
+		if not gameover_restart_button.pressed.is_connected(restart_game):
+			gameover_restart_button.pressed.connect(restart_game)
+			print("Game over restart button connected")
+	if gameover_quit_button:
+		if not gameover_quit_button.pressed.is_connected(quit_game):
+			gameover_quit_button.pressed.connect(quit_game)
+			print("Game over quit button connected")
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and not is_game_over:
+		print("ESC pressed, toggling pause")
 		toggle_pause()
 
 func _spawn_slime() -> void:
@@ -142,7 +168,7 @@ func _on_player_died() -> void:
 
 func _on_game_over() -> void:
 	# Update final score
-	var final_score_label = $UIManager/GameOverMenu/VBoxContainer/FinalScoreLabel
+	var final_score_label = ui_manager.get_node("GameOverMenu/VBoxContainer/FinalScoreLabel")
 	if final_score_label:
 		final_score_label.text = "Final Score: " + str(score)
 	
@@ -159,14 +185,18 @@ func toggle_pause() -> void:
 	get_tree().paused = is_paused
 	
 	print("Toggle pause - is_paused: ", is_paused)
+	print("pause_menu exists: ", pause_menu != null)
 	
 	if pause_menu:
 		if is_paused:
 			pause_menu.show()
-			print("Pause menu shown")
+			print("Pause menu should be visible now")
+			print("Pause menu visible: ", pause_menu.visible)
 		else:
 			pause_menu.hide()
 			print("Pause menu hidden")
+	else:
+		print("ERROR: pause_menu is null!")
 
 func resume_game() -> void:
 	print("Resume game called")
@@ -174,6 +204,7 @@ func resume_game() -> void:
 	get_tree().paused = false
 	if pause_menu:
 		pause_menu.hide()
+		print("Game resumed, pause menu hidden")
 
 func restart_game() -> void:
 	print("Restart game called")

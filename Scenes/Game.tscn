@@ -140,7 +140,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 0
+mouse_filter = 1
+process_mode = 3
 
 [node name="Background" type="ColorRect" parent="UIManager/PauseMenu"]
 layout_mode = 1
@@ -189,7 +190,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 0
+mouse_filter = 1
+process_mode = 3
 
 [node name="Background" type="ColorRect" parent="UIManager/GameOverMenu"]
 layout_mode = 1
