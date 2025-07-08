@@ -6,9 +6,9 @@ extends Node2D
 @export var spawn_position_y_min: float = 60.0
 @export var spawn_position_y_max: float = 100.0
 
-@onready var spawn_timer: Timer = $SpawnTimer
-@onready var ui_manager: Control = $UIManager
-@onready var player: CharacterBody2D = $Player
+var spawn_timer: Timer
+var ui_manager: Control
+var player: CharacterBody2D
 
 var score: int = 0
 var high_score: int = 0
@@ -26,8 +26,30 @@ signal score_changed(new_score: int)
 signal game_over_signal
 
 func _ready() -> void:
+	print("Game Manager _ready() called")
+	
 	# Load high score first
 	load_high_score()
+	
+	# Get node references with error checking
+	spawn_timer = get_node("SpawnTimer")
+	ui_manager = get_node("UIManager")
+	player = get_node("Player")
+	
+	print("Node references:")
+	print("- spawn_timer: ", spawn_timer != null)
+	print("- ui_manager: ", ui_manager != null)
+	print("- player: ", player != null)
+	
+	if not spawn_timer:
+		print("ERROR: SpawnTimer not found!")
+		return
+	if not ui_manager:
+		print("ERROR: UIManager not found!")
+		return
+	if not player:
+		print("ERROR: Player not found!")
+		return
 	
 	# Setup spawn timer
 	spawn_timer.wait_time = spawn_interval
@@ -39,14 +61,17 @@ func _ready() -> void:
 	game_over_signal.connect(_on_game_over)
 	
 	# Connect player game over signal
-	if player:
-		player.player_died.connect(_on_player_died)
+	player.player_died.connect(_on_player_died)
 	
 	# Wait one frame for all nodes to be ready, then setup UI
 	call_deferred("setup_ui_after_ready")
 
 func setup_ui_after_ready() -> void:
 	print("Setting up UI after ready...")
+	
+	if not ui_manager:
+		print("ERROR: ui_manager is still null in setup_ui_after_ready!")
+		return
 	
 	# Get UI references with error checking
 	pause_menu = ui_manager.get_node("PauseMenu")
@@ -87,6 +112,10 @@ func setup_ui() -> void:
 
 func setup_button_connections() -> void:
 	print("Setting up button connections...")
+	
+	if not ui_manager:
+		print("ERROR: ui_manager is null in setup_button_connections!")
+		return
 	
 	# Pause menu buttons
 	var resume_button = ui_manager.get_node("PauseMenu/VBoxContainer/ResumeButton")
@@ -163,10 +192,15 @@ func _on_slime_killed() -> void:
 
 func _on_player_died() -> void:
 	is_game_over = true
-	spawn_timer.stop()
+	if spawn_timer:
+		spawn_timer.stop()
 	game_over_signal.emit()
 
 func _on_game_over() -> void:
+	if not ui_manager:
+		print("ERROR: ui_manager is null in _on_game_over!")
+		return
+		
 	# Update final score
 	var final_score_label = ui_manager.get_node("GameOverMenu/VBoxContainer/FinalScoreLabel")
 	if final_score_label:
