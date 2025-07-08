@@ -33,7 +33,7 @@ func _ready() -> void:
 	
 	# Get node references with error checking
 	spawn_timer = get_node("SpawnTimer")
-	ui_manager = get_node("UIManager")
+	ui_manager = $UIManager
 	player = get_node("Player")
 	
 	print("Node references:")
@@ -41,41 +41,11 @@ func _ready() -> void:
 	print("- ui_manager: ", ui_manager != null)
 	print("- player: ", player != null)
 	
-	# Additional debugging for UIManager
-	if not ui_manager:
-		print("Trying alternative paths for UIManager...")
-		# Try to find UIManager in the entire scene tree
-		ui_manager = get_tree().get_first_node_in_group("ui_manager")
-		if not ui_manager:
-			ui_manager = get_tree().current_scene.find_child("UIManager", true, false)
-		if not ui_manager:
-			# Search all nodes in the scene
-			var all_nodes = get_tree().get_nodes_in_group("ui_manager")
-			if all_nodes.size() > 0:
-				ui_manager = all_nodes[0]
-	
-	# Debug: Print all children of GameManager
-	print("GameManager children:")
-	for child in get_children():
-		print("  - ", child.name, " (", child.get_class(), ")")
-	
-	# Debug: Print all children of current scene
-	print("Current scene children:")
-	for child in get_tree().current_scene.get_children():
-		print("  - ", child.name, " (", child.get_class(), ")")
-	
 	if not spawn_timer:
 		print("ERROR: SpawnTimer not found!")
 		return
 	if not ui_manager:
 		print("ERROR: UIManager not found!")
-		print("Searching entire scene tree for UIManager...")
-		var found_ui = find_ui_manager_recursive(get_tree().current_scene)
-		if found_ui:
-			ui_manager = found_ui
-			print("Found UIManager at: ", found_ui.get_path())
-		else:
-			print("UIManager not found anywhere in scene tree!")
 		return
 	if not player:
 		print("ERROR: Player not found!")
