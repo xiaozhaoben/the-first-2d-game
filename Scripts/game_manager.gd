@@ -15,7 +15,7 @@ var high_score: int = 0
 var is_paused: bool = false
 var is_game_over: bool = false
 
-# UI references - will be set after nodes are ready
+# UI references
 var pause_menu: Control
 var game_over_menu: Control
 var game_ui: Control
@@ -26,17 +26,7 @@ signal score_changed(new_score: int)
 signal game_over_signal
 
 func _ready() -> void:
-	# Wait for all nodes to be ready
-	await get_tree().process_frame
-	
-	# Get UI references safely
-	pause_menu = get_node_or_null("UIManager/PauseMenu")
-	game_over_menu = get_node_or_null("UIManager/GameOverMenu")
-	game_ui = get_node_or_null("UIManager/GameUI")
-	score_label = get_node_or_null("UIManager/GameUI/ScoreLabel")
-	high_score_label = get_node_or_null("UIManager/GameUI/HighScoreLabel")
-	
-	# Load high score
+	# Load high score first
 	load_high_score()
 	
 	# Setup spawn timer
@@ -48,49 +38,70 @@ func _ready() -> void:
 	score_changed.connect(_on_score_changed)
 	game_over_signal.connect(_on_game_over)
 	
-	# Setup UI
-	update_score_display()
-	setup_ui()
-	
 	# Connect player game over signal
 	if player:
 		player.player_died.connect(_on_player_died)
 	
-	# Connect UI buttons
+	# Wait one frame for all nodes to be ready, then setup UI
+	call_deferred("setup_ui_after_ready")
+
+func setup_ui_after_ready() -> void:
+	# Get UI references
+	pause_menu = $UIManager/PauseMenu
+	game_over_menu = $UIManager/GameOverMenu
+	game_ui = $UIManager/GameUI
+	score_label = $UIManager/GameUI/ScoreLabel
+	high_score_label = $UIManager/GameUI/HighScoreLabel
+	
+	# Setup initial UI state
+	setup_ui()
+	
+	# Connect buttons
 	setup_button_connections()
+	
+	# Update score display
+	update_score_display()
 
 func setup_ui() -> void:
 	# Show game UI
 	if game_ui:
 		game_ui.show()
+		print("Game UI shown")
 	
 	# Hide menus
 	if pause_menu:
 		pause_menu.hide()
+		print("Pause menu hidden")
 	if game_over_menu:
 		game_over_menu.hide()
+		print("Game over menu hidden")
 
 func setup_button_connections() -> void:
 	# Pause menu buttons
-	var resume_button = get_node_or_null("UIManager/PauseMenu/VBoxContainer/ResumeButton")
-	var pause_restart_button = get_node_or_null("UIManager/PauseMenu/VBoxContainer/RestartButton")
-	var pause_quit_button = get_node_or_null("UIManager/PauseMenu/VBoxContainer/QuitButton")
+	var resume_button = $UIManager/PauseMenu/VBoxContainer/ResumeButton
+	var pause_restart_button = $UIManager/PauseMenu/VBoxContainer/RestartButton
+	var pause_quit_button = $UIManager/PauseMenu/VBoxContainer/QuitButton
 	
-	if resume_button:
+	if resume_button and not resume_button.pressed.is_connected(resume_game):
 		resume_button.pressed.connect(resume_game)
-	if pause_restart_button:
+		print("Resume button connected")
+	if pause_restart_button and not pause_restart_button.pressed.is_connected(restart_game):
 		pause_restart_button.pressed.connect(restart_game)
-	if pause_quit_button:
+		print("Pause restart button connected")
+	if pause_quit_button and not pause_quit_button.pressed.is_connected(quit_game):
 		pause_quit_button.pressed.connect(quit_game)
+		print("Pause quit button connected")
 	
 	# Game over menu buttons
-	var gameover_restart_button = get_node_or_null("UIManager/GameOverMenu/VBoxContainer/RestartButton")
-	var gameover_quit_button = get_node_or_null("UIManager/GameOverMenu/VBoxContainer/QuitButton")
+	var gameover_restart_button = $UIManager/GameOverMenu/VBoxContainer/RestartButton
+	var gameover_quit_button = $UIManager/GameOverMenu/VBoxContainer/QuitButton
 	
-	if gameover_restart_button:
+	if gameover_restart_button and not gameover_restart_button.pressed.is_connected(restart_game):
 		gameover_restart_button.pressed.connect(restart_game)
-	if gameover_quit_button:
+		print("Game over restart button connected")
+	if gameover_quit_button and not gameover_quit_button.pressed.is_connected(quit_game):
 		gameover_quit_button.pressed.connect(quit_game)
+		print("Game over quit button connected")
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and not is_game_over:
@@ -131,7 +142,7 @@ func _on_player_died() -> void:
 
 func _on_game_over() -> void:
 	# Update final score
-	var final_score_label = get_node_or_null("UIManager/GameOverMenu/VBoxContainer/FinalScoreLabel")
+	var final_score_label = $UIManager/GameOverMenu/VBoxContainer/FinalScoreLabel
 	if final_score_label:
 		final_score_label.text = "Final Score: " + str(score)
 	
@@ -147,26 +158,30 @@ func toggle_pause() -> void:
 	is_paused = !is_paused
 	get_tree().paused = is_paused
 	
+	print("Toggle pause - is_paused: ", is_paused)
+	
 	if pause_menu:
 		if is_paused:
 			pause_menu.show()
+			print("Pause menu shown")
 		else:
 			pause_menu.hide()
+			print("Pause menu hidden")
 
 func resume_game() -> void:
-	print("Resume game called")  # Debug print
+	print("Resume game called")
 	is_paused = false
 	get_tree().paused = false
 	if pause_menu:
 		pause_menu.hide()
 
 func restart_game() -> void:
-	print("Restart game called")  # Debug print
+	print("Restart game called")
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
 func quit_game() -> void:
-	print("Quit game called")  # Debug print
+	print("Quit game called")
 	get_tree().quit()
 
 func update_score_display() -> void:
