@@ -1,11 +1,12 @@
 extends Node2D
 
 @export var slime_scene: PackedScene
-@export var spawn_timer: Timer
 @export var spawn_interval: float = 2.0
 @export var spawn_position_x: float = 250.0
 @export var spawn_position_y_min: float = 60.0
 @export var spawn_position_y_max: float = 100.0
+
+@onready var spawn_timer: Timer = $SpawnTimer
 
 func _ready() -> void:
 	# Setup spawn timer
