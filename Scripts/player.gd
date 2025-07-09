@@ -30,7 +30,7 @@ func game_over():
 
 
 func _on_fire() -> void:
-	if velocity != Vector2.ZERO || is_game_over:
+	if is_game_over:
 		return
 	var bullet_node = bullet_scene.instantiate()
 	bullet_node.position = position + Vector2(6, 6)

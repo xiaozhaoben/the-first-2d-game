@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://d3rjgpdghycut"]
 
-[ext_resource type="Script" uid="uid://cwolh78uykknm" path="res://Scripts/gameManager.gd" id="1_b2bpf"]
+[ext_resource type="Script" path="res://Scripts/gameManager.gd" id="1_b2bpf"]
 [ext_resource type="Texture2D" uid="uid://c7s4ogq0kfpj" path="res://AssetBundle/Sprites/ForestBackground.png" id="1_iukft"]
 [ext_resource type="PackedScene" uid="uid://bngilxunfdgbw" path="res://Scenes/Player.tscn" id="2_gl6un"]
 [ext_resource type="PackedScene" uid="uid://bh5gdfdxd4wu1" path="res://Scenes/Slimer.tscn" id="3_j5yw3"]
