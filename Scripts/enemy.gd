@@ -8,6 +8,9 @@ var is_dead : bool = false
 func _physics_process(delta: float) -> void:
 	if !is_dead:
 		position += Vector2(-100, 0) * delta
+		
+	if position.x < -60:
+		queue_free()
 
 
 func _on_body_entered(body: Node2D) -> void:
