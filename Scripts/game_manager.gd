@@ -31,10 +31,10 @@ func _ready() -> void:
 	# Load high score first
 	load_high_score()
 	
-	# Get node references with error checking
-	spawn_timer = get_node("SpawnTimer")
+	# Get node references using direct paths
+	spawn_timer = $SpawnTimer
 	ui_manager = $UIManager
-	player = get_node("Player")
+	player = $Player
 	
 	print("Node references:")
 	print("- spawn_timer: ", spawn_timer != null)
@@ -53,49 +53,35 @@ func _ready() -> void:
 	
 	# Setup spawn timer
 	spawn_timer.wait_time = spawn_interval
-	spawn_timer.timeout.connect(_spawn_slime)
+	if not spawn_timer.timeout.is_connected(_spawn_slime):
+		spawn_timer.timeout.connect(_spawn_slime)
 	spawn_timer.start()
 	
 	# Connect signals
-	score_changed.connect(_on_score_changed)
-	game_over_signal.connect(_on_game_over)
+	if not score_changed.is_connected(_on_score_changed):
+		score_changed.connect(_on_score_changed)
+	if not game_over_signal.is_connected(_on_game_over):
+		game_over_signal.connect(_on_game_over)
 	
 	# Connect player game over signal
-	player.player_died.connect(_on_player_died)
+	if not player.player_died.is_connected(_on_player_died):
+		player.player_died.connect(_on_player_died)
 	
-	# Wait one frame for all nodes to be ready, then setup UI
-	call_deferred("setup_ui_after_ready")
+	# Setup UI immediately
+	setup_ui_references()
+	setup_ui()
+	setup_button_connections()
+	update_score_display()
 
-func find_ui_manager_recursive(node: Node) -> Control:
-	if node.name == "UIManager" and node is Control:
-		return node as Control
+func setup_ui_references() -> void:
+	print("Setting up UI references...")
 	
-	for child in node.get_children():
-		var result = find_ui_manager_recursive(child)
-		if result:
-			return result
-	
-	return null
-
-func setup_ui_after_ready() -> void:
-	print("Setting up UI after ready...")
-	
-	if not ui_manager:
-		print("ERROR: ui_manager is still null in setup_ui_after_ready!")
-		return
-	
-	# Print all children of UIManager for debugging
-	print("UIManager children:")
-	for child in ui_manager.get_children():
-		print("  - ", child.name, " (", child.get_class(), ")")
-	
-	# Get UI references with error checking
-	# Use find_child to search recursively
-	pause_menu = ui_manager.find_child("PauseMenu", true, false)
-	game_over_menu = ui_manager.find_child("GameOverMenu", true, false)
-	game_ui = ui_manager.find_child("GameUI", true, false)
-	score_label = ui_manager.find_child("ScoreLabel", true, false)
-	high_score_label = ui_manager.find_child("HighScoreLabel", true, false)
+	# Get UI references using direct paths from UIManager
+	pause_menu = ui_manager.get_node("PauseMenu")
+	game_over_menu = ui_manager.get_node("GameOverMenu")
+	game_ui = ui_manager.get_node("GameUI")
+	score_label = ui_manager.get_node("GameUI/ScoreLabel")
+	high_score_label = ui_manager.get_node("GameUI/HighScoreLabel")
 	
 	print("UI nodes found:")
 	print("- pause_menu: ", pause_menu != null)
@@ -103,22 +89,10 @@ func setup_ui_after_ready() -> void:
 	print("- game_ui: ", game_ui != null)
 	print("- score_label: ", score_label != null)
 	print("- high_score_label: ", high_score_label != null)
-	
-	if pause_menu:
-		print("PauseMenu found at path: ", pause_menu.get_path())
-	if game_over_menu:
-		print("GameOverMenu found at path: ", game_over_menu.get_path())
-	
-	# Setup initial UI state
-	setup_ui()
-	
-	# Connect buttons
-	setup_button_connections()
-	
-	# Update score display
-	update_score_display()
 
 func setup_ui() -> void:
+	print("Setting up initial UI state...")
+	
 	# Show game UI
 	if game_ui:
 		game_ui.show()
@@ -135,47 +109,31 @@ func setup_ui() -> void:
 func setup_button_connections() -> void:
 	print("Setting up button connections...")
 	
-	if not ui_manager:
-		print("ERROR: ui_manager is null in setup_button_connections!")
-		return
-	
 	# Pause menu buttons
-	var resume_button = ui_manager.find_child("ResumeButton", true, false)
-	var pause_restart_button = pause_menu.find_child("RestartButton", true, false) if pause_menu else null
-	var pause_quit_button = pause_menu.find_child("QuitButton", true, false) if pause_menu else null
-	
-	print("Pause menu buttons found:")
-	print("- resume_button: ", resume_button != null)
-	print("- pause_restart_button: ", pause_restart_button != null)
-	print("- pause_quit_button: ", pause_quit_button != null)
-	
-	if resume_button:
-		if not resume_button.pressed.is_connected(resume_game):
+	if pause_menu:
+		var resume_button = pause_menu.get_node("VBoxContainer/ResumeButton")
+		var pause_restart_button = pause_menu.get_node("VBoxContainer/RestartButton")
+		var pause_quit_button = pause_menu.get_node("VBoxContainer/QuitButton")
+		
+		if resume_button and not resume_button.pressed.is_connected(resume_game):
 			resume_button.pressed.connect(resume_game)
 			print("Resume button connected")
-	if pause_restart_button:
-		if not pause_restart_button.pressed.is_connected(restart_game):
+		if pause_restart_button and not pause_restart_button.pressed.is_connected(restart_game):
 			pause_restart_button.pressed.connect(restart_game)
 			print("Pause restart button connected")
-	if pause_quit_button:
-		if not pause_quit_button.pressed.is_connected(quit_game):
+		if pause_quit_button and not pause_quit_button.pressed.is_connected(quit_game):
 			pause_quit_button.pressed.connect(quit_game)
 			print("Pause quit button connected")
 	
 	# Game over menu buttons
-	var gameover_restart_button = game_over_menu.find_child("RestartButton", true, false) if game_over_menu else null
-	var gameover_quit_button = game_over_menu.find_child("QuitButton", true, false) if game_over_menu else null
-	
-	print("Game over menu buttons found:")
-	print("- gameover_restart_button: ", gameover_restart_button != null)
-	print("- gameover_quit_button: ", gameover_quit_button != null)
-	
-	if gameover_restart_button:
-		if not gameover_restart_button.pressed.is_connected(restart_game):
+	if game_over_menu:
+		var gameover_restart_button = game_over_menu.get_node("VBoxContainer/RestartButton")
+		var gameover_quit_button = game_over_menu.get_node("VBoxContainer/QuitButton")
+		
+		if gameover_restart_button and not gameover_restart_button.pressed.is_connected(restart_game):
 			gameover_restart_button.pressed.connect(restart_game)
 			print("Game over restart button connected")
-	if gameover_quit_button:
-		if not gameover_quit_button.pressed.is_connected(quit_game):
+		if gameover_quit_button and not gameover_quit_button.pressed.is_connected(quit_game):
 			gameover_quit_button.pressed.connect(quit_game)
 			print("Game over quit button connected")
 
@@ -219,14 +177,11 @@ func _on_player_died() -> void:
 	game_over_signal.emit()
 
 func _on_game_over() -> void:
-	if not ui_manager:
-		print("ERROR: ui_manager is null in _on_game_over!")
-		return
-		
 	# Update final score
-	var final_score_label = ui_manager.find_child("FinalScoreLabel", true, false)
-	if final_score_label:
-		final_score_label.text = "Final Score: " + str(score)
+	if game_over_menu:
+		var final_score_label = game_over_menu.get_node("VBoxContainer/FinalScoreLabel")
+		if final_score_label:
+			final_score_label.text = "Final Score: " + str(score)
 	
 	# Show game over menu after a short delay
 	await get_tree().create_timer(1.0).timeout
@@ -246,8 +201,7 @@ func toggle_pause() -> void:
 	if pause_menu:
 		if is_paused:
 			pause_menu.show()
-			print("Pause menu should be visible now")
-			print("Pause menu visible: ", pause_menu.visible)
+			print("Pause menu shown")
 		else:
 			pause_menu.hide()
 			print("Pause menu hidden")
