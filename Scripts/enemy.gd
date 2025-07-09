@@ -23,6 +23,7 @@ func _on_area_entered(area: Area2D) -> void:
 		$AnimatedSprite2D.play("death")
 		is_dead = true
 		area.queue_free()
+		get_tree().current_scene.score += 1
 		await get_tree().create_timer(0.6).timeout
 		queue_free()
 	

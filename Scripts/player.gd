@@ -23,10 +23,12 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 
 func game_over():
-	is_game_over = true
-	animator.play("game_over")
-	await get_tree().create_timer(3).timeout
-	get_tree().reload_current_scene()
+	if !is_game_over:
+		is_game_over = true
+		animator.play("game_over")
+		get_tree().current_scene.show_game_over()
+		await get_tree().create_timer(3).timeout
+		get_tree().reload_current_scene()
 
 
 func _on_fire() -> void:

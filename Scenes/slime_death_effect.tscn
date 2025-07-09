@@ -1,7 +1,6 @@
-[gd_scene load_steps=11 format=3 uid="uid://mhu6fuvvi4ok"]
+[gd_scene load_steps=10 format=3 uid="uid://mhu6fuvvi4ok"]
 
 [ext_resource type="Texture2D" uid="uid://c2woecf7ijaem" path="res://AssetBundle/Sprites/SlimerDeath.png" id="1_death"]
-[ext_resource type="Script" path="res://Scripts/slime_death_effect.gd" id="1_script"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bli02"]
 atlas = ExtResource("1_death")
@@ -61,7 +60,6 @@ animations = [{
 }]
 
 [node name="SlimeDeathEffect" type="Node2D"]
-script = ExtResource("1_script")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_death")
