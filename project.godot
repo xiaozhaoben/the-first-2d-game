@@ -15,6 +15,10 @@ run/main_scene="uid://d3rjgpdghycut"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Bgm="*res://Scenes/BGM.tscn"
+
 [input]
 
 left={
