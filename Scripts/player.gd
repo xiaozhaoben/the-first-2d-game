@@ -36,8 +36,8 @@ func game_over():
 		
 		$GameOverSound.play()
 		
-		await get_tree().create_timer(3).timeout
-		get_tree().reload_current_scene()
+		$RestartTimer.start()
+		
 
 
 func _on_fire() -> void:
@@ -49,3 +49,7 @@ func _on_fire() -> void:
 	var bullet_node = bullet_scene.instantiate()
 	bullet_node.position = position + Vector2(6, 6)
 	get_tree().current_scene.add_child(bullet_node)
+
+
+func _on_restart_timer_timeout() -> void:
+	get_tree().reload_current_scene()

@@ -24,6 +24,7 @@ func _on_area_entered(area: Area2D) -> void:
 		is_dead = true
 		area.queue_free()
 		get_tree().current_scene.score += 1
+		$DeathSound.play()
 		await get_tree().create_timer(0.6).timeout
 		queue_free()
 	
